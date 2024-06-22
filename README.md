@@ -1,1 +1,0 @@
-# Helios-Motor-Test-Jig
