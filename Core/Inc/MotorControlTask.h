@@ -5,6 +5,8 @@
  *      Author: dominic
  */
 
+#include "stdint.h"
+
 #ifndef INC_MOTORCONTROLTASK_H_
 #define INC_MOTORCONTROLTASK_H_
 
