@@ -61,8 +61,6 @@ void Error_Handler(void);
 #define Supply_Current_GPIO_Port GPIOC
 #define Precharger_Current_Pin GPIO_PIN_1
 #define Precharger_Current_GPIO_Port GPIOC
-#define Motor_1_Voltage_Pin GPIO_PIN_0
-#define Motor_1_Voltage_GPIO_Port GPIOA
 #define Motor_2_Voltage_Pin GPIO_PIN_1
 #define Motor_2_Voltage_GPIO_Port GPIOA
 #define USART_TX_Pin GPIO_PIN_2
