@@ -115,7 +115,8 @@ void Error_Handler(void);
 #define Button_2_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
-
+#define ADC_BUF_LEN 20
+#define UART_BUF_LEN 4096
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

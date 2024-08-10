@@ -22,6 +22,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <string.h>
+#include "MotorControlTask.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -31,7 +32,6 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define ADC_BUF_LEN 20
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -70,7 +70,8 @@ static void MX_TIM7_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-static uint16_t dma_adc_val[ADC_BUF_LEN] = {0};
+static uint16_t dma_adc_buf[ADC_BUF_LEN] = {0};
+static uint8_t dma_uart_buf[UART_BUF_LEN] = {0};
 /* USER CODE END 0 */
 
 /**
@@ -108,17 +109,45 @@ int main(void)
   MX_TIM6_Init();
   MX_TIM7_Init();
   /* USER CODE BEGIN 2 */
-//  hdma_adc.Instance->CMAR = (uint32_t)dma_adc_val;
-
-  HAL_ADC_Start_DMA(&hadc, (uint32_t*)dma_adc_val, ADC_BUF_LEN);
+  HAL_ADC_Start_DMA(&hadc, (uint32_t*)dma_adc_buf, ADC_BUF_LEN);
   HAL_TIM_Base_Start(&htim6);
+  HAL_UART_Receive_DMA(&huart1, dma_uart_buf, UART_BUF_LEN);
+
+  Motor_cmd motor_cmd;
+
+  uint8_t* command_start = &dma_uart_buf[0];
+  uint8_t* command_end = &dma_uart_buf[0];
+
+  uint8_t command_split = 0;
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
+  while (1){
     /* USER CODE END WHILE */
+    // Polling for carriage return \r
+    uint8_t command_status = CheckBuffer(dma_uart_buf, command_end);
+    
+    // Command Status 0 means that the command is still being received
+    if(command_status == 0){
+        command_end++;
+    
+    // Command Status 1 means that the command is ready to be parsed
+    } else if(command_status == 1){
+        ParseMotorCommand(&motor_cmd, dma_uart_buf, command_start, command_end, command_split);
+        SendMotorCommand(&motor_cmd);
+
+        command_start = command_end + 1;
+        command_split = 0;
+
+        command_end = command_start;
+
+    // Command Status 2 means that the buffer is full and command will split
+    } else if(command_status == 2){
+        command_split = 1;
+        command_end = &dma_uart_buf[0];
+
+    }
 
     /* USER CODE BEGIN 3 */
   }
@@ -518,11 +547,6 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
-    uint32_t adcValue = HAL_ADC_GetValue(hadc);
-    dma_adc_val[0] = adcValue;
-}
-
 
 /* USER CODE END 4 */
 
