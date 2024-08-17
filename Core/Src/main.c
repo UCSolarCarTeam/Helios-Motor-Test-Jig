@@ -72,6 +72,9 @@ static void MX_TIM7_Init(void);
 /* USER CODE BEGIN 0 */
 static uint16_t dma_adc_buf[ADC_BUF_LEN] = {0};
 static uint8_t dma_uart_buf[UART_BUF_LEN] = {0};
+
+static uint8_t* command_end = &dma_uart_buf[0];
+static uint8_t last_message[UART_BUF_LEN] = {0};
 /* USER CODE END 0 */
 
 /**
@@ -115,16 +118,12 @@ int main(void)
 
   Motor_cmd motor_cmd;
 
-  uint8_t* command_start = &dma_uart_buf[0];
-  uint8_t* command_end = &dma_uart_buf[0];
-
-  uint8_t command_split = 0;
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1){
-    /* USER CODE END WHILE */
+
     // Polling for carriage return \r
     uint8_t command_status = CheckBuffer(dma_uart_buf, command_end);
     
@@ -134,21 +133,21 @@ int main(void)
     
     // Command Status 1 means that the command is ready to be parsed
     } else if(command_status == 1){
-        ParseMotorCommand(&motor_cmd, dma_uart_buf, command_start, command_end, command_split);
-        SendMotorCommand(&motor_cmd);
+    	ParseMotorCommand(&motor_cmd, dma_uart_buf, command_end, last_message);
+    	SendMotorCommand(&motor_cmd);
+      
+    	HAL_UART_DMAStop(&huart1);
+    	HAL_UART_Receive_DMA(&huart1, dma_uart_buf, UART_BUF_LEN);
 
-        command_start = command_end + 1;
-        command_split = 0;
+    	memset(dma_uart_buf, 0, sizeof(dma_uart_buf));
 
-        command_end = command_start;
-
-    // Command Status 2 means that the buffer is full and command will split
-    } else if(command_status == 2){
-        command_split = 1;
-        command_end = &dma_uart_buf[0];
-
+    	command_end = &dma_uart_buf[0];
     }
 
+    if((uint32_t)command_end >= (&dma_uart_buf[UART_BUF_LEN] - 1)){
+    	command_end = &dma_uart_buf[0];
+    }
+    /* USER CODE END WHILE */
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */

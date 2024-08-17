@@ -7,8 +7,6 @@
 
 #include "MotorControlTask.h"
 
-extern uint16_t dma_uart_buf;
-
 /*
     * Checks if the buffer contains a complete command
     * 
@@ -21,10 +19,6 @@ uint8_t CheckBuffer(uint8_t* buffer, uint8_t* buffer_index) {
     if ((uint8_t)(*buffer_index) == '\r') {
         // Command finished
         return 1;
-
-    } else if ((uint32_t)buffer_index == (buffer[0] + UART_BUF_LEN - 1)){
-        // Command not finished, buffer full
-        return 2;
     }
     else {
         // Command not finished
@@ -35,7 +29,7 @@ uint8_t CheckBuffer(uint8_t* buffer, uint8_t* buffer_index) {
 }
 
 /*
-    * Parses the buffer into a Motor_cmd struct
+    * Parses the buffer into a Motor_cmd
     * 
     * @param buffer: The buffer to parse
     * @param start_index: The index of the buffer to start parsing
@@ -45,25 +39,12 @@ uint8_t CheckBuffer(uint8_t* buffer, uint8_t* buffer_index) {
     * @return A Motor_cmd struct containing the parsed data
 
 */
-void ParseMotorCommand(Motor_cmd* motor_cmd, uint8_t* buffer, uint8_t* start_index, uint8_t* end_index, uint8_t split) {
+void ParseMotorCommand(Motor_cmd* motor_cmd, uint8_t* buffer, uint8_t* end_index, uint8_t* last_message) {
     // TODO: Convert uart command to Motor_cmd
-    if (split == 1) {
-        uint16_t temp_buffer[UART_BUF_LEN] = {0};
-        uint16_t temp_buffer_index = 0;
-        while (temp_buffer_index < UART_BUF_LEN) {
-            temp_buffer[temp_buffer_index] = buffer[*start_index + temp_buffer_index];
-            temp_buffer_index++;
-        }
-
-        // TODO: Parse temp_buffer into motor_cmd
-        return;
-
-    } else {
-        // TODO: Parse buffer from start_index to end_index into motor_cmd
-        return;
-    }
+    memcpy(buffer, last_message, sizeof(uint8_t)*UART_BUF_LEN);
 }
 /*
+    * Parse Motor_cmd into a CAN message
     * Sends the motor command using CAN
     * 
     * @param motor_cmd: The motor command to send
