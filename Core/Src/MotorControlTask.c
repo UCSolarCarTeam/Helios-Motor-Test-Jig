@@ -41,7 +41,9 @@ uint8_t CheckBuffer(uint8_t* buffer, uint8_t* buffer_index) {
 */
 void ParseMotorCommand(Motor_cmd* motor_cmd, uint8_t* buffer, uint8_t* end_index, uint8_t* last_message) {
     // TODO: Convert uart command to Motor_cmd
-    memcpy(buffer, last_message, sizeof(uint8_t)*UART_BUF_LEN);
+    for(int i = 0; i < UART_BUF_LEN; i++){
+        last_message[i] = buffer[i];
+    }
 }
 /*
     * Parse Motor_cmd into a CAN message
