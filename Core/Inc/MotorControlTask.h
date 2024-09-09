@@ -31,7 +31,7 @@ typedef struct {
 
 uint8_t CheckBuffer(uint8_t* buffer, uint8_t* buffer_index);
 
-void ParseMotorCommand(Motor_cmd* motor_cmd, uint8_t* buffer, uint8_t* end_index, uint8_t* last_message);
+uint8_t ParseMotorCommand(Motor_cmd* motor_cmd, uint8_t* buffer, uint8_t* end_index, uint8_t* last_message);
 
 void SendMotorCommand(Motor_cmd* motor_cmd);
 

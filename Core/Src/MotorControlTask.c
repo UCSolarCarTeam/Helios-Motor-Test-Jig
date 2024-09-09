@@ -6,6 +6,8 @@
  */
 
 #include "MotorControlTask.h"
+#include <stdio.h>
+#include <string.h>
 
 /*
     * Checks if the buffer contains a complete command
@@ -31,23 +33,137 @@ uint8_t CheckBuffer(uint8_t* buffer, uint8_t* buffer_index) {
 /*
     * Parses the buffer into a Motor_cmd
     * 
+    * @param motor_cmd: The Motor_cmd struct to store the parsed data
     * @param buffer: The buffer to parse
-    * @param start_index: The index of the buffer to start parsing
     * @param end_index: The index of the buffer to end parsing
-    * @param split: 1 if the buffer is split into two parts, 0 if the buffer is not split
+    * @param last_message: The last message received
     * 
     * @return A Motor_cmd struct containing the parsed data
 
 */
-void ParseMotorCommand(Motor_cmd* motor_cmd, uint8_t* buffer, uint8_t* end_index, uint8_t* last_message) {
+uint8_t ParseMotorCommand(Motor_cmd* motor_cmd, uint8_t* buffer, uint8_t* end_index, uint8_t* last_message) {
     // TODO: Convert uart command to Motor_cmd
     for(int i = 0; i < UART_BUF_LEN; i++){
         last_message[i] = buffer[i];
     }
+
+    char motor[5] = {0};
+    char option[20] = {0};
+    uint32_t number = {0};
+
+    // format: m[id] [option] [number]
+    sscanf((char *)last_message, "%s %s %lu", motor, option, &number);
+
+    // Motor 1
+    if (strcmp(motor, "m1") == 0){
+        // Status
+        if(strcmp(option, "on") == 0){
+            motor_cmd->m1_status = 1;
+        } 
+        else if(strcmp(option, "off") == 0){
+            motor_cmd->m1_status = 0;
+        } 
+        
+        // Control Mode and Value
+        else if(strcmp(option, "torque") == 0){
+            if (number > 100){
+                number = 100;
+            } else if(number < -100){
+                number = -100;
+            }
+            motor_cmd->m1_val = number;
+            motor_cmd->m1_control = 1;
+            if(number < 0){
+                motor_cmd->m1_dir = 1;
+            } else {
+                motor_cmd->m1_dir = 0;
+            }
+        }
+        else if(strcmp(option, "speed") == 0){
+            if(number > 10000){
+                number = 10000;
+            } else if(number < -10000){
+                number = -10000;
+            }
+
+            motor_cmd->m1_val = number;
+            motor_cmd->m1_control = 2;
+            if (number < 0){
+                motor_cmd->m1_dir = 1;
+            } else {
+                motor_cmd->m1_dir = 0;
+            }
+        }
+
+    }
+
+    // Motor 2
+    else if(strcmp(motor, "m2") == 0){
+        // Status
+        if(strcmp(option, "on") == 0) {
+            motor_cmd->m2_status = 1;
+        } 
+        else if(strcmp(option, "off") == 0){
+            motor_cmd->m2_status = 0;
+        } 
+        
+        // Control Mode and Value
+        else if(strcmp(option, "torque") == 0){
+            if (number > 100){
+                number = 100;
+            } else if(number < -100){
+                number = -100;
+            }
+            motor_cmd->m2_val = number;
+            motor_cmd->m2_control = 1;
+            if(number < 0){
+                motor_cmd->m2_dir = 1;
+            } else {
+                motor_cmd->m2_dir = 0;
+            }
+        }
+        else if(strcmp(option, "speed") == 0){
+            if(number > 10000){
+                number = 10000;
+            } else if(number < -10000){
+                number = -10000;
+            }
+
+            motor_cmd->m2_val = number;
+            motor_cmd->m2_control = 2;
+            if (number < 0){
+                motor_cmd->m2_dir = 1;
+            } else {
+                motor_cmd->m2_dir = 0;
+            }
+        }
+
+        // Motor Mode
+        else if(strcmp(option, "default") == 0){
+            motor_cmd->m2_mode = 0;
+        } else if(strcmp(option, "boost") == 0){
+            motor_cmd->m2_mode = 1;
+        } else if(strcmp(option, "reverse") == 0){
+            motor_cmd->m2_mode = 2;
+        } else if(strcmp(option, "regen") == 0){
+            motor_cmd->m2_mode = 3;
+        }
+
+        else { // unsupported option
+            return -3;
+        }
+    } else if (strcmp(motor, "send") == 0){
+        // CAN STUFF HERE
+    }
+    else { // unsupported motor
+        return -2;
+    }
+
+    return 1;
 }
 /*
     * Parse Motor_cmd into a CAN message
-    * Sends the motor command using CAN
+    * Set the motor command using CAN
     * 
     * @param motor_cmd: The motor command to send
 */

@@ -75,6 +75,10 @@ static uint8_t dma_uart_buf[UART_BUF_LEN] = {0};
 
 static uint8_t* command_end = &dma_uart_buf[0];
 static uint8_t last_message[UART_BUF_LEN] = {0};
+
+static Motor_cmd motor_cmd;
+
+static int8_t parse_status = 0; // temp, remove later
 /* USER CODE END 0 */
 
 /**
@@ -90,7 +94,7 @@ int main(void)
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+	HAL_Init();
 
   /* USER CODE BEGIN Init */
 
@@ -116,8 +120,6 @@ int main(void)
   HAL_TIM_Base_Start(&htim6);
   HAL_UART_Receive_DMA(&huart1, dma_uart_buf, UART_BUF_LEN);
 
-  Motor_cmd motor_cmd;
-
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -133,8 +135,7 @@ int main(void)
     
     // Command Status 1 means that the command is ready to be parsed
     } else if(command_status == 1){
-    	ParseMotorCommand(&motor_cmd, dma_uart_buf, command_end, last_message);
-    	SendMotorCommand(&motor_cmd);
+    	parse_status = ParseMotorCommand(&motor_cmd, dma_uart_buf, command_end, last_message);
       
     	HAL_UART_DMAStop(&huart1);
     	HAL_UART_Receive_DMA(&huart1, dma_uart_buf, UART_BUF_LEN);
@@ -148,6 +149,7 @@ int main(void)
     	command_end = &dma_uart_buf[0];
     }
     /* USER CODE END WHILE */
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -503,17 +505,17 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(Radio_GPIO_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : CAN_INT_Pin RX0BF_Pin */
-  GPIO_InitStruct.Pin = CAN_INT_Pin|RX0BF_Pin;
+  /*Configure GPIO pins : nCAN_INT_Pin nRX0BF_Pin */
+  GPIO_InitStruct.Pin = nCAN_INT_Pin|nRX0BF_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : RX1BF_Pin */
-  GPIO_InitStruct.Pin = RX1BF_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  /*Configure GPIO pins : nRX1BF_Pin nRESET_Pin Button_3_Pin */
+  GPIO_InitStruct.Pin = nRX1BF_Pin|nRESET_Pin|Button_3_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(RX1BF_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pin : LED_1_Pin */
   GPIO_InitStruct.Pin = LED_1_Pin;
@@ -528,12 +530,6 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : Button_3_Pin */
-  GPIO_InitStruct.Pin = Button_3_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(Button_3_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : Button_4_Pin */
   GPIO_InitStruct.Pin = Button_4_Pin;

@@ -107,6 +107,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
     PA0-WKUP1     ------> ADC_IN0
     PA1     ------> ADC_IN1
     PA4     ------> ADC_IN4
+    PA5     ------> ADC_IN5
     PA6     ------> ADC_IN6
     PA7     ------> ADC_IN7
     PB1     ------> ADC_IN9
@@ -116,8 +117,8 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    GPIO_InitStruct.Pin = GPIO_PIN_0|Motor_2_Voltage_Pin|Supply_Voltage_Pin|Precharger_Voltage_Pin
-                          |Motor_1_Current_Pin;
+    GPIO_InitStruct.Pin = GPIO_PIN_0|Motor_2_Voltage_Pin|Supply_Voltage_Pin|GPIO_PIN_5
+                          |Precharger_Voltage_Pin|Motor_1_Current_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
@@ -176,14 +177,15 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* hadc)
     PA0-WKUP1     ------> ADC_IN0
     PA1     ------> ADC_IN1
     PA4     ------> ADC_IN4
+    PA5     ------> ADC_IN5
     PA6     ------> ADC_IN6
     PA7     ------> ADC_IN7
     PB1     ------> ADC_IN9
     */
     HAL_GPIO_DeInit(GPIOC, Supply_Current_Pin|Precharger_Current_Pin);
 
-    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_0|Motor_2_Voltage_Pin|Supply_Voltage_Pin|Precharger_Voltage_Pin
-                          |Motor_1_Current_Pin);
+    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_0|Motor_2_Voltage_Pin|Supply_Voltage_Pin|GPIO_PIN_5
+                          |Precharger_Voltage_Pin|Motor_1_Current_Pin);
 
     HAL_GPIO_DeInit(Motor_2_Current_GPIO_Port, Motor_2_Current_Pin);
 
