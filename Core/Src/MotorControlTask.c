@@ -9,6 +9,24 @@
 #include <stdio.h>
 #include <string.h>
 
+Motor_cmd motor_cmd_init(void){
+    Motor_cmd motor_cmd;
+
+    motor_cmd.m1_status = 0;
+    motor_cmd.m1_control = 0;
+    motor_cmd.m1_mode = 0;
+    motor_cmd.m1_dir = 0;
+    motor_cmd.m1_val = 0;
+    
+    motor_cmd.m2_status = 0;
+    motor_cmd.m2_control = 0;
+    motor_cmd.m2_mode = 0;
+    motor_cmd.m2_dir = 0;
+    motor_cmd.m2_val = 0;
+
+    return motor_cmd;
+}
+
 /*
     * Checks if the buffer contains a complete command
     * 
@@ -49,10 +67,10 @@ uint8_t ParseMotorCommand(Motor_cmd* motor_cmd, uint8_t* buffer, uint8_t* end_in
 
     char motor[5] = {0};
     char option[20] = {0};
-    uint32_t number = {0};
+    int16_t number = {0};
 
     // format: m[id] [option] [number]
-    sscanf((char *)last_message, "%s %s %lu", motor, option, &number);
+    sscanf((char *)last_message, "%s %s %hd", motor, option, &number);
 
     // Motor 1
     if (strcmp(motor, "m1") == 0){

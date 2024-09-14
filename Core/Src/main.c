@@ -120,6 +120,8 @@ int main(void)
   HAL_TIM_Base_Start(&htim6);
   HAL_UART_Receive_DMA(&huart1, dma_uart_buf, UART_BUF_LEN);
 
+  motor_cmd = motor_cmd_init();
+  
   /* USER CODE END 2 */
 
   /* Infinite loop */

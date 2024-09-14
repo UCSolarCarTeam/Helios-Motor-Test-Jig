@@ -19,15 +19,16 @@ typedef struct {
     					// 2 - reverse (in analog control)
     					// 3 - regeneration
     uint8_t m1_dir;		// 0 = Forward, 1 = Reverse
-    uint32_t m1_val;    // Value of RPM or Torque
+    int16_t m1_val;    // Value of RPM or Torque
     
     uint8_t m2_status;
     uint8_t m2_control;
     uint8_t m2_mode;
     uint8_t m2_dir;
-    uint32_t m2_val;
+    int16_t m2_val;
 } Motor_cmd;
 
+Motor_cmd motor_cmd_init(void);
 
 uint8_t CheckBuffer(uint8_t* buffer, uint8_t* buffer_index);
 
