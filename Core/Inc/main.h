@@ -59,8 +59,10 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define Supply_Current_Pin GPIO_PIN_0
 #define Supply_Current_GPIO_Port GPIOC
-#define Precharger_Current_Pin GPIO_PIN_1
-#define Precharger_Current_GPIO_Port GPIOC
+#define Load_Current_Pin GPIO_PIN_1
+#define Load_Current_GPIO_Port GPIOC
+#define Motor_1_Voltage_Pin GPIO_PIN_0
+#define Motor_1_Voltage_GPIO_Port GPIOA
 #define Motor_2_Voltage_Pin GPIO_PIN_1
 #define Motor_2_Voltage_GPIO_Port GPIOA
 #define USART_TX_Pin GPIO_PIN_2
@@ -69,8 +71,8 @@ void Error_Handler(void);
 #define USART_RX_GPIO_Port GPIOA
 #define Supply_Voltage_Pin GPIO_PIN_4
 #define Supply_Voltage_GPIO_Port GPIOA
-#define Precharger_Voltage_Pin GPIO_PIN_6
-#define Precharger_Voltage_GPIO_Port GPIOA
+#define MPPT_Current_Pin GPIO_PIN_6
+#define MPPT_Current_GPIO_Port GPIOA
 #define Motor_1_Current_Pin GPIO_PIN_7
 #define Motor_1_Current_GPIO_Port GPIOA
 #define Motor_2_Current_Pin GPIO_PIN_1
@@ -117,7 +119,7 @@ void Error_Handler(void);
 #define Button_2_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
-#define ADC_BUF_LEN 20
+#define ADC_BUF_LEN 8
 #define UART_BUF_LEN 50
 /* USER CODE END Private defines */
 
