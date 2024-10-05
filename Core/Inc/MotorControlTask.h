@@ -5,11 +5,13 @@
  *      Author: dominic
  */
 
-#include "stdint.h"
-#include "main.h"
-
 #ifndef INC_MOTORCONTROLTASK_H_
 #define INC_MOTORCONTROLTASK_H_
+
+#include "main.h"
+#include "stdint.h"
+#include <stdio.h>
+#include <string.h>
 
 typedef struct {
     uint8_t m1_status;  // 0 = off, 1 = on
@@ -32,8 +34,10 @@ Motor_cmd motor_cmd_init(void);
 
 uint8_t CheckBuffer(uint8_t* buffer, uint8_t* buffer_index);
 
-uint8_t ParseMotorCommand(Motor_cmd* motor_cmd, uint8_t* buffer, uint8_t* end_index, uint8_t* last_message);
+uint8_t ParseMotorCommand(Motor_cmd* motor_cmd, uint8_t* buffer, uint8_t* last_message, Motor_cmd* last_motor_cmd, UART_HandleTypeDef* huart);
 
-void SendMotorCommand(Motor_cmd* motor_cmd);
+void SendMotorCommand(Motor_cmd* motor_cmd, Motor_cmd* last_motor_cmd);
+
+void PrintMotorCommand(UART_HandleTypeDef* huart, Motor_cmd* motor_cmd, Motor_cmd* last_motor_cmd);
 
 #endif /* INC_MOTORCONTROLTASK_H_ */

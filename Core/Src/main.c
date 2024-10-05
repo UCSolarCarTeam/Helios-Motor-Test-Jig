@@ -70,6 +70,7 @@ static void MX_TIM7_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+// Buffers
 static uint16_t dma_adc_buf[ADC_BUF_LEN] = {0};
 static uint8_t dma_uart_buf[UART_BUF_LEN] = {0};
 
@@ -77,6 +78,7 @@ static uint8_t* command_end = &dma_uart_buf[0];
 static uint8_t last_message[UART_BUF_LEN] = {0};
 
 static Motor_cmd motor_cmd;
+static Motor_cmd last_motor_cmd;
 
 static int8_t parse_status = 0; // temp, remove later
 /* USER CODE END 0 */
@@ -121,6 +123,7 @@ int main(void)
   HAL_UART_Receive_DMA(&huart1, dma_uart_buf, UART_BUF_LEN);
 
   motor_cmd = motor_cmd_init();
+  last_motor_cmd = motor_cmd_init();
   
   /* USER CODE END 2 */
 
@@ -137,8 +140,17 @@ int main(void)
     
     // Command Status 1 means that the command is ready to be parsed
     } else if(command_status == 1){
-    	parse_status = ParseMotorCommand(&motor_cmd, dma_uart_buf, command_end, last_message);
+    	parse_status = ParseMotorCommand(&motor_cmd, dma_uart_buf, last_message, &last_motor_cmd, &huart1);
       
+      // Send Acknowledgement
+      if(parse_status == 1){
+        HAL_UART_Transmit(&huart1, (uint8_t*)"Command Received\r\n", 18, 100);
+      } else {
+        uint8_t error_message = {0};
+        sprintf(error_message, "Command Error: %d\r\n", parse_status);
+        HAL_UART_Transmit(&huart1, &error_message, 15, 100);
+      }
+
     	HAL_UART_DMAStop(&huart1);
     	HAL_UART_Receive_DMA(&huart1, dma_uart_buf, UART_BUF_LEN);
 
@@ -571,7 +583,6 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
 /* USER CODE END 4 */
 
 /**
