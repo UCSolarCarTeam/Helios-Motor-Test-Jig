@@ -146,9 +146,9 @@ int main(void)
       if(parse_status == 1){
         HAL_UART_Transmit(&huart1, (uint8_t*)"Command Received\r\n", 18, 100);
       } else {
-        uint8_t error_message = {0};
+        char error_message[20] = {0};
         sprintf(error_message, "Command Error: %d\r\n", parse_status);
-        HAL_UART_Transmit(&huart1, &error_message, 15, 100);
+        HAL_UART_Transmit(&huart1, (uint8_t*)error_message, strlen(error_message), 100);
       }
 
     	HAL_UART_DMAStop(&huart1);

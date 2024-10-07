@@ -171,9 +171,14 @@ uint8_t ParseMotorCommand(Motor_cmd* motor_cmd, uint8_t* buffer, uint8_t* last_m
     } else if (strcmp(motor, "send") == 0){
         SendMotorCommand(motor_cmd, last_motor_cmd);
 
-    } else if (strcmp(motor, "print") == 0){
+    } else if (strcmp(motor, "printlc") == 0){
+        // print last motor_cmd
+        PrintMotorCommand(huart, last_motor_cmd);
+    }
+    
+    else if (strcmp(motor, "print") == 0){
         // print motor_cmd
-        PrintMotorCommand(huart, motor_cmd, last_motor_cmd);
+        PrintMotorCommand(huart, motor_cmd);
     }
     else { // unsupported motor
         return -2;
@@ -188,6 +193,9 @@ uint8_t ParseMotorCommand(Motor_cmd* motor_cmd, uint8_t* buffer, uint8_t* last_m
     * @param motor_cmd: The motor command to send
 */
 void SendMotorCommand(Motor_cmd* motor_cmd, Motor_cmd* last_motor_cmd) {
+    // Copy the current motor command to the last motor command
+    memcpy(last_motor_cmd, motor_cmd, sizeof(Motor_cmd));
+    
     uint8_t m1_message[8] = {0}; // 8 bytes for CAN m1_message
     uint8_t m2_message[8] = {0}; // 8 bytes for CAN m2_message
 
@@ -222,21 +230,12 @@ void SendMotorCommand(Motor_cmd* motor_cmd, Motor_cmd* last_motor_cmd) {
     * 
     * @param motor_cmd: The Motor_cmd to print
 */
-void PrintMotorCommand(UART_HandleTypeDef* huart, Motor_cmd* motor_cmd, Motor_cmd* last_motor_cmd) {
+void PrintMotorCommand(UART_HandleTypeDef* huart, Motor_cmd* motor_cmd) {
     char message[100] = {0};
 
     sprintf(message, "Motor: 1\r\n Status: %d\r\n Control: %d\r\n Mode: %d\r\n Dir: %d\r\n Val: %d\r\n\r\n", motor_cmd->m1_status, motor_cmd->m1_control, motor_cmd->m1_mode, motor_cmd->m1_dir, motor_cmd->m1_val);
-    HAL_UART_Transmit(&(*huart), (uint8_t*)message, strlen(message), 100);
+    HAL_UART_Transmit(huart, (uint8_t*)message, strlen(message), 100);
 
     sprintf(message, "Motor: 2\r\n Status: %d\r\n Control: %d\r\n Mode: %d\r\n Dir: %d\r\n Val: %d\r\n\r\n", motor_cmd->m2_status, motor_cmd->m2_control, motor_cmd->m2_mode, motor_cmd->m2_dir, motor_cmd->m2_val);
-    HAL_UART_Transmit(&(*huart), (uint8_t*)message, strlen(message), 100);
-    
-    sprintf(message, "LAST COMMANDS\r\n");
-    HAL_UART_Transmit(&(*huart), (uint8_t*)message, strlen(message), 100);
-
-    sprintf(message, "Last Motor: 1\r\n Status: %d\r\n Control: %d\r\n Mode: %d\r\n Dir: %d\r\n Val: %d\r\n\r\n", last_motor_cmd->m1_status, last_motor_cmd->m1_control, last_motor_cmd->m1_mode, last_motor_cmd->m1_dir, last_motor_cmd->m1_val);
-    HAL_UART_Transmit(&(*huart), (uint8_t*)message, strlen(message), 100);
-    
-    sprintf(message, "Last Motor: 2\r\n Status: %d\r\n Control: %d\r\n Mode: %d\r\n Dir: %d\r\n Val: %d\r\n\r\n", last_motor_cmd->m2_status, last_motor_cmd->m2_control, last_motor_cmd->m2_mode, last_motor_cmd->m2_dir, last_motor_cmd->m2_val);
-    HAL_UART_Transmit(&(*huart), (uint8_t*)message, strlen(message), 100);
+    HAL_UART_Transmit(huart, (uint8_t*)message, strlen(message), 100);
 }

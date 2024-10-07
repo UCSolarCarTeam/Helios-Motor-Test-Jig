@@ -38,6 +38,6 @@ uint8_t ParseMotorCommand(Motor_cmd* motor_cmd, uint8_t* buffer, uint8_t* last_m
 
 void SendMotorCommand(Motor_cmd* motor_cmd, Motor_cmd* last_motor_cmd);
 
-void PrintMotorCommand(UART_HandleTypeDef* huart, Motor_cmd* motor_cmd, Motor_cmd* last_motor_cmd);
+void PrintMotorCommand(UART_HandleTypeDef* huart, Motor_cmd* motor_cmd);
 
 #endif /* INC_MOTORCONTROLTASK_H_ */
