@@ -58,7 +58,6 @@ uint8_t CheckBuffer(uint8_t* buffer, uint8_t* buffer_index) {
 
 */
 uint8_t ParseMotorCommand(Motor_cmd* motor_cmd, uint8_t* buffer, uint8_t* last_message, Motor_cmd* last_motor_cmd, UART_HandleTypeDef* huart) {
-    // TODO: Convert uart command to Motor_cmd
     for(int i = 0; i < UART_BUF_LEN; i++){
         last_message[i] = buffer[i];
     }
@@ -70,14 +69,18 @@ uint8_t ParseMotorCommand(Motor_cmd* motor_cmd, uint8_t* buffer, uint8_t* last_m
     // format: m[id] [option] [number]
     sscanf((char *)last_message, "%s %s %hd", motor, option, &number);
 
+    char update_msg[50] = {0};
+
     // Motor 1
     if (strcmp(motor, "m1") == 0){
         // Status
         if(strcmp(option, "on") == 0){
             motor_cmd->m1_status = 1;
+            sprintf(update_msg, "Motor 1 Status: %d -> %d\r\n", last_motor_cmd->m1_status, motor_cmd->m1_status);
         } 
         else if(strcmp(option, "off") == 0){
             motor_cmd->m1_status = 0;
+            sprintf(update_msg, "Motor 1 Status: %d -> %d\r\n", last_motor_cmd->m1_status, motor_cmd->m1_status);
         } 
         
         // Control Mode and Value
@@ -87,13 +90,18 @@ uint8_t ParseMotorCommand(Motor_cmd* motor_cmd, uint8_t* buffer, uint8_t* last_m
             } else if(number < -100){
                 number = -100;
             }
+
             motor_cmd->m1_val = number;
             motor_cmd->m1_control = 1;
+
             if(number < 0){
                 motor_cmd->m1_dir = 1;
             } else {
                 motor_cmd->m1_dir = 0;
             }
+
+            sprintf(update_msg, "Motor 1 Torque: %d%% -> %d%%\r\n", last_motor_cmd->m1_val, motor_cmd->m1_val);
+
         }
         else if(strcmp(option, "speed") == 0){
             if(number > 10000){
@@ -109,8 +117,8 @@ uint8_t ParseMotorCommand(Motor_cmd* motor_cmd, uint8_t* buffer, uint8_t* last_m
             } else {
                 motor_cmd->m1_dir = 0;
             }
+            sprintf(update_msg, "Motor 1 Speed: %d RPM -> %d RPM\r\n", last_motor_cmd->m1_val/10, motor_cmd->m1_val/10);
         }
-
     }
 
     // Motor 2
@@ -118,9 +126,11 @@ uint8_t ParseMotorCommand(Motor_cmd* motor_cmd, uint8_t* buffer, uint8_t* last_m
         // Status
         if(strcmp(option, "on") == 0) {
             motor_cmd->m2_status = 1;
+            sprintf(update_msg, "Motor 2 Status: %d -> %d\r\n", last_motor_cmd->m2_status, motor_cmd->m2_status);
         } 
         else if(strcmp(option, "off") == 0){
             motor_cmd->m2_status = 0;
+            sprintf(update_msg, "Motor 2 Status: %d -> %d\r\n", last_motor_cmd->m2_status, motor_cmd->m2_status);
         } 
         
         // Control Mode and Value
@@ -137,6 +147,7 @@ uint8_t ParseMotorCommand(Motor_cmd* motor_cmd, uint8_t* buffer, uint8_t* last_m
             } else {
                 motor_cmd->m2_dir = 0;
             }
+            sprintf(update_msg, "Motor 2 Torque: %d%% -> %d%%\r\n", last_motor_cmd->m2_val, motor_cmd->m2_val);
         }
         else if(strcmp(option, "speed") == 0){
             if(number > 10000){
@@ -152,6 +163,7 @@ uint8_t ParseMotorCommand(Motor_cmd* motor_cmd, uint8_t* buffer, uint8_t* last_m
             } else {
                 motor_cmd->m2_dir = 0;
             }
+            sprintf(update_msg, "Motor 2 Speed: %d RPM -> %d RPM\r\n", last_motor_cmd->m2_val/10, motor_cmd->m2_val/10);
         }
 
         // Motor Mode
@@ -171,26 +183,42 @@ uint8_t ParseMotorCommand(Motor_cmd* motor_cmd, uint8_t* buffer, uint8_t* last_m
     } else if (strcmp(motor, "send") == 0){
         SendMotorCommand(motor_cmd, last_motor_cmd);
 
-    } else if (strcmp(motor, "printlc") == 0){
-        // print last motor_cmd
-        PrintMotorCommand(huart, last_motor_cmd);
-    }
-    
-    else if (strcmp(motor, "print") == 0){
-        // print motor_cmd
-        PrintMotorCommand(huart, motor_cmd);
-    }
-    else { // unsupported motor
+    } else if (strcmp(motor, "print") == 0){
+    	if(strcmp(option, "all") == 0){
+    		// Print both commands
+    		char msg[20] = {0};
+    		sprintf(msg, "Last Sent Command\r\n");
+    		HAL_UART_Transmit(huart, (uint8_t*)msg, strlen(msg), 100);
+    		PrintMotorCommand(huart, last_motor_cmd);
+
+    		sprintf(msg, "Current Command\r\n");
+    		HAL_UART_Transmit(huart, (uint8_t*)msg, strlen(msg), 100);
+    		PrintMotorCommand(huart, motor_cmd);
+
+    	} else if(strcmp(option, "last") == 0){
+    		// print last motor_cmd
+    		PrintMotorCommand(huart, last_motor_cmd);
+
+    	} else {
+    		// Print current command
+    		PrintMotorCommand(huart, motor_cmd);
+    	}
+
+    } else { // unsupported motor
         return -2;
     }
+    
+    HAL_UART_Transmit(huart, (uint8_t*)update_msg, strlen(update_msg), 100);
 
     return 1;
 }
+
 /*
     * Parse Motor_cmd into a CAN message
     * Set the motor command using CAN
     * 
     * @param motor_cmd: The motor command to send
+    * @param last_motor_cmd: save the previous command
 */
 void SendMotorCommand(Motor_cmd* motor_cmd, Motor_cmd* last_motor_cmd) {
     // Copy the current motor command to the last motor command
@@ -228,6 +256,7 @@ void SendMotorCommand(Motor_cmd* motor_cmd, Motor_cmd* last_motor_cmd) {
 /*
     * Print the Motor_cmd via UART
     * 
+    * @param huart: UART Handler
     * @param motor_cmd: The Motor_cmd to print
 */
 void PrintMotorCommand(UART_HandleTypeDef* huart, Motor_cmd* motor_cmd) {
