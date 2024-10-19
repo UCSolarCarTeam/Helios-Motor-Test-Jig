@@ -22,6 +22,7 @@
 #include "stm32l1xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "MotorSafetyTask.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -63,7 +64,10 @@ extern DMA_HandleTypeDef hdma_usart1_rx;
 extern TIM_HandleTypeDef htim2;
 
 /* USER CODE BEGIN EV */
+extern uint8_t adc_log_en;
+extern uint16_t dma_adc_buf[ADC_BUF_LEN];
 
+extern UART_HandleTypeDef huart2;
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -284,7 +288,7 @@ void TIM7_IRQHandler(void)
   /* USER CODE END TIM7_IRQn 0 */
   HAL_TIM_IRQHandler(&htim7);
   /* USER CODE BEGIN TIM7_IRQn 1 */
-
+  sendADCValues(&huart2, dma_adc_buf, adc_log_en);
   /* USER CODE END TIM7_IRQn 1 */
 }
 

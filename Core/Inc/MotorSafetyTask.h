@@ -13,10 +13,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "MotorControlTask.h"
-
-void MotorSafetyTask(void);
-
-void getSafetyLimits(Motor_cmd* motor_cmd);
+void sendADCValues(UART_HandleTypeDef* huart, uint16_t* dma_adc_buf, uint8_t enable);
 
 #endif /* INC_MOTORSAFETYTASK_H_ */

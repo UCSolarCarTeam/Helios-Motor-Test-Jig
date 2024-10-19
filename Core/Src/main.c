@@ -49,6 +49,7 @@ TIM_HandleTypeDef htim6;
 TIM_HandleTypeDef htim7;
 
 UART_HandleTypeDef huart1;
+UART_HandleTypeDef huart2;
 DMA_HandleTypeDef hdma_usart1_rx;
 
 /* USER CODE BEGIN PV */
@@ -64,6 +65,7 @@ static void MX_SPI2_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_TIM6_Init(void);
 static void MX_TIM7_Init(void);
+static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -71,16 +73,20 @@ static void MX_TIM7_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 // Buffers
-static uint16_t dma_adc_buf[ADC_BUF_LEN] = {0};
-static uint8_t dma_uart_buf[UART_BUF_LEN] = {0};
+uint16_t dma_adc_buf[ADC_BUF_LEN] = {0};
+uint8_t dma_uart_buf[UART_BUF_LEN] = {0};
 
-static uint8_t* command_end = &dma_uart_buf[0];
-static uint8_t last_message[UART_BUF_LEN] = {0};
+uint8_t* command_end = &dma_uart_buf[0];
+uint8_t last_message[UART_BUF_LEN] = {0};
 
-static Motor_cmd motor_cmd;
-static Motor_cmd last_motor_cmd;
+// Motor Commands
+Motor_cmd motor_cmd;
+Motor_cmd last_motor_cmd;
 
-static int8_t parse_status = 0; // temp, remove later
+// Status and Enables
+uint8_t adc_log_en = 0;
+int8_t parse_status = 0;
+
 /* USER CODE END 0 */
 
 /**
@@ -117,6 +123,7 @@ int main(void)
   MX_USART1_UART_Init();
   MX_TIM6_Init();
   MX_TIM7_Init();
+  MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
   HAL_ADC_Start_DMA(&hadc, (uint32_t*)dma_adc_buf, ADC_BUF_LEN);
   HAL_TIM_Base_Start(&htim6);
@@ -125,27 +132,26 @@ int main(void)
   motor_cmd = motor_cmd_init();
   last_motor_cmd = motor_cmd_init();
   
+  // Start Timer 7 for Motor Safety Task
+  HAL_TIM_Base_Start_IT(&htim7);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1){
-
     // Polling for carriage return \r
     uint8_t command_status = CheckBuffer(dma_uart_buf, command_end);
-    
+
     // Command Status 0 means that the command is still being received
     if(command_status == 0){
         command_end++;
     
     // Command Status 1 means that the command is ready to be parsed
     } else if(command_status == 1){
-    	parse_status = ParseMotorCommand(&motor_cmd, dma_uart_buf, last_message, &last_motor_cmd, &huart1);
-      
-      // Send Acknowledgement
-      if(parse_status == 1){
-        HAL_UART_Transmit(&huart1, (uint8_t*)"Command Received\r\n", 18, 100);
-      } else {
+    	parse_status = ParseMotorCommand(&motor_cmd, dma_uart_buf, last_message, &adc_log_en, &last_motor_cmd, &huart1);
+
+      if(parse_status != 1){
         char error_message[20] = {0};
         sprintf(error_message, "Command Error: %d\r\n", parse_status);
         HAL_UART_Transmit(&huart1, (uint8_t*)error_message, strlen(error_message), 100);
@@ -159,7 +165,10 @@ int main(void)
     	command_end = &dma_uart_buf[0];
     }
 
-    if((uint32_t)command_end >= (&dma_uart_buf[UART_BUF_LEN] - 1)){
+    uint32_t command_end_addr = (uint32_t)command_end;
+    uint32_t buf_end_addr = (uint32_t)(&dma_uart_buf[UART_BUF_LEN] - 1);
+
+    if(command_end_addr >= buf_end_addr){
     	command_end = &dma_uart_buf[0];
     }
     /* USER CODE END WHILE */
@@ -424,9 +433,9 @@ static void MX_TIM7_Init(void)
 
   /* USER CODE END TIM7_Init 1 */
   htim7.Instance = TIM7;
-  htim7.Init.Prescaler = 0;
+  htim7.Init.Prescaler = 320;
   htim7.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim7.Init.Period = 65535;
+  htim7.Init.Period = 9999;
   htim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim7) != HAL_OK)
   {
@@ -478,6 +487,39 @@ static void MX_USART1_UART_Init(void)
 }
 
 /**
+  * @brief USART2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_USART2_UART_Init(void)
+{
+
+  /* USER CODE BEGIN USART2_Init 0 */
+
+  /* USER CODE END USART2_Init 0 */
+
+  /* USER CODE BEGIN USART2_Init 1 */
+
+  /* USER CODE END USART2_Init 1 */
+  huart2.Instance = USART2;
+  huart2.Init.BaudRate = 115200;
+  huart2.Init.WordLength = UART_WORDLENGTH_8B;
+  huart2.Init.StopBits = UART_STOPBITS_1;
+  huart2.Init.Parity = UART_PARITY_NONE;
+  huart2.Init.Mode = UART_MODE_TX_RX;
+  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN USART2_Init 2 */
+
+  /* USER CODE END USART2_Init 2 */
+
+}
+
+/**
   * Enable DMA controller clock
   */
 static void MX_DMA_Init(void)
@@ -522,14 +564,6 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOC, LED_2_Pin|LED_3_Pin, GPIO_PIN_RESET);
-
-  /*Configure GPIO pins : USART_TX_Pin USART_RX_Pin */
-  GPIO_InitStruct.Pin = USART_TX_Pin|USART_RX_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-  GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pins : Faults_Pin Gate_Driver_Placeholder_1_Pin Gate_Driver_Placeholder_2_Pin Gate_Driver_Placeholder_3_Pin
                            Gate_Driver_Placeholder_4_Pin Button_1_Pin Button_2_Pin */

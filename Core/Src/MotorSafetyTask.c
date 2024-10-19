@@ -8,41 +8,25 @@
 #include "MotorSafetyTask.h"
 #include "main.h"
 
-// TEMP VALUES
-#define M1_VOLTAGE_LIMIT 1000
-#define M2_VOLTAGE_LIMIT 1000
-#define SUPPLY_VOLTAGE_LIMIT 1000
-#define MPPT_CURRENT_LIMIT 1000
-#define M1_CURRENT_LIMIT 1000
-#define M2_CURRENT_LIMIT 1000
-#define SUPPLY_CURRENT_LIMIT 1000
-#define LOAD_CURRENT_LIMIT 1000
+/*
+    * Sends ADC values over UART
+    * 
+    * @param huart: The UART handle
+    * @param dma_adc_buf: The ADC buffer
+    * @param en: enable
+    * 
+    * @return 0 if the motor command is within safety limits, 1 if the motor command is not within safety limits
+*/
+void sendADCValues(UART_HandleTypeDef* huart, uint16_t* dma_adc_buf, uint8_t enable) {
+	if(enable){
+        uint16_t current_adc_buf[ADC_BUF_LEN] = {0};
+		memcpy(current_adc_buf, dma_adc_buf, sizeof(uint16_t)*ADC_BUF_LEN);
 
-extern uint16_t dma_adc_buf[ADC_BUF_LEN];
+		char msg[50] = {0};
+        sprintf(msg, "0000\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n000\r\n", current_adc_buf[0], current_adc_buf[1], current_adc_buf[2], current_adc_buf[3], current_adc_buf[4], current_adc_buf[5], current_adc_buf[6], current_adc_buf[7]);
+        HAL_UART_Transmit(huart, (uint8_t*)msg, strlen(msg), 100);
+	}
 
-void MotorSafetyTask(void) {
-    if (dma_adc_buf[0] > M1_VOLTAGE_LIMIT) {
-        // Error
-    }
-    if (dma_adc_buf[1] > M2_VOLTAGE_LIMIT) {
-        // Error
-    }
-    if (dma_adc_buf[2] > SUPPLY_VOLTAGE_LIMIT) {
-        // Error
-    }
-    if (dma_adc_buf[3] > MPPT_CURRENT_LIMIT) {
-        // Error
-    }
-    if (dma_adc_buf[4] > M1_CURRENT_LIMIT) {
-        // Error
-    }
-    if (dma_adc_buf[5] > M2_CURRENT_LIMIT) {
-        // Error
-    }
-    if (dma_adc_buf[6] > SUPPLY_CURRENT_LIMIT) {
-        // Error
-    }
-    if (dma_adc_buf[7] > LOAD_CURRENT_LIMIT) {
-        // Error
-    }
+	return;
 }
+

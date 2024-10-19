@@ -120,7 +120,7 @@ void Error_Handler(void);
 
 /* USER CODE BEGIN Private defines */
 #define ADC_BUF_LEN 8
-#define UART_BUF_LEN 50
+#define UART_BUF_LEN 4096
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

@@ -6,6 +6,7 @@
  */
 
 #include "MotorControlTask.h"
+#include "MotorSafetyTask.h"
 
 Motor_cmd motor_cmd_init(void){
     Motor_cmd motor_cmd;
@@ -57,7 +58,7 @@ uint8_t CheckBuffer(uint8_t* buffer, uint8_t* buffer_index) {
     * @return A Motor_cmd struct containing the parsed data
 
 */
-uint8_t ParseMotorCommand(Motor_cmd* motor_cmd, uint8_t* buffer, uint8_t* last_message, Motor_cmd* last_motor_cmd, UART_HandleTypeDef* huart) {
+uint8_t ParseMotorCommand(Motor_cmd* motor_cmd, uint8_t* buffer, uint8_t* last_message, uint8_t* adc_log_enable, Motor_cmd* last_motor_cmd, UART_HandleTypeDef* huart) {
     for(int i = 0; i < UART_BUF_LEN; i++){
         last_message[i] = buffer[i];
     }
@@ -118,6 +119,26 @@ uint8_t ParseMotorCommand(Motor_cmd* motor_cmd, uint8_t* buffer, uint8_t* last_m
                 motor_cmd->m1_dir = 0;
             }
             sprintf(update_msg, "Motor 1 Speed: %d RPM -> %d RPM\r\n", last_motor_cmd->m1_val/10, motor_cmd->m1_val/10);
+        } 
+        
+        // Motor Mode
+        else if(strcmp(option, "default") == 0){
+            motor_cmd->m1_mode = 0;
+            sprintf(update_msg, "Motor 1 Mode: %d -> %d\r\n", last_motor_cmd->m1_mode, motor_cmd->m1_mode);
+        } else if(strcmp(option, "boost") == 0){
+            motor_cmd->m1_mode = 1;
+            sprintf(update_msg, "Motor 1 Mode: %d -> %d\r\n", last_motor_cmd->m1_mode, motor_cmd->m1_mode);
+        } else if(strcmp(option, "reverse") == 0){
+            motor_cmd->m1_mode = 2;
+            sprintf(update_msg, "Motor 1 Mode: %d -> %d\r\n", last_motor_cmd->m1_mode, motor_cmd->m1_mode);
+        } else if(strcmp(option, "regen") == 0){
+            motor_cmd->m1_mode = 3;
+            sprintf(update_msg, "Motor 1 Mode: %d -> %d\r\n", last_motor_cmd->m1_mode, motor_cmd->m1_mode);
+        }
+
+        else {
+            // unsupported option
+            return -3;
         }
     }
 
@@ -169,21 +190,29 @@ uint8_t ParseMotorCommand(Motor_cmd* motor_cmd, uint8_t* buffer, uint8_t* last_m
         // Motor Mode
         else if(strcmp(option, "default") == 0){
             motor_cmd->m2_mode = 0;
+            sprintf(update_msg, "Motor 2 Mode: %d -> %d\r\n", last_motor_cmd->m2_mode, motor_cmd->m2_mode);
         } else if(strcmp(option, "boost") == 0){
             motor_cmd->m2_mode = 1;
+            sprintf(update_msg, "Motor 2 Mode: %d -> %d\r\n", last_motor_cmd->m2_mode, motor_cmd->m2_mode);
         } else if(strcmp(option, "reverse") == 0){
             motor_cmd->m2_mode = 2;
+            sprintf(update_msg, "Motor 2 Mode: %d -> %d\r\n", last_motor_cmd->m2_mode, motor_cmd->m2_mode);
         } else if(strcmp(option, "regen") == 0){
             motor_cmd->m2_mode = 3;
+            sprintf(update_msg, "Motor 2 Mode: %d -> %d\r\n", last_motor_cmd->m2_mode, motor_cmd->m2_mode);
         }
 
         else { // unsupported option
             return -3;
         }
-    } else if (strcmp(motor, "send") == 0){
-        SendMotorCommand(motor_cmd, last_motor_cmd);
 
-    } else if (strcmp(motor, "print") == 0){
+    } 
+    
+    else if (strcmp(motor, "send") == 0){ // Send Command to Motors
+        SendMotorCommand(motor_cmd, last_motor_cmd);
+    } 
+    
+    else if (strcmp(motor, "print") == 0){ // Print to UART Terminal
     	if(strcmp(option, "all") == 0){
     		// Print both commands
     		char msg[20] = {0};
@@ -199,12 +228,31 @@ uint8_t ParseMotorCommand(Motor_cmd* motor_cmd, uint8_t* buffer, uint8_t* last_m
     		// print last motor_cmd
     		PrintMotorCommand(huart, last_motor_cmd);
 
-    	} else {
+    	} else if(strcmp(option, "") == 0){
     		// Print current command
     		PrintMotorCommand(huart, motor_cmd);
-    	}
+    	} else {
+            // unsupported option
+            return -3;
+        }
 
-    } else { // unsupported motor
+    } 
+    
+    else if(strcmp(motor, "logadc") == 0){ // ADC Log
+    	if(strcmp(option, "on") == 0){
+    		*adc_log_enable = 1;
+            sprintf(update_msg, "ADC Logging %s\r\n", option);
+
+    	} else if(strcmp(option, "off") == 0){
+    		*adc_log_enable = 0;
+            sprintf(update_msg, "ADC Logging %s\r\n", option);
+
+    	} else { // unsupported option
+    		return -3;
+    	}
+    } 
+    
+    else { // unsupported motor
         return -2;
     }
     
