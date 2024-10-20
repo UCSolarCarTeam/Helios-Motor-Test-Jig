@@ -7,8 +7,9 @@ from scipy.optimize import curve_fit
 df = pd.read_csv('motor-data.csv')
 
 x = df['Torque [Nm]']
-y = df['DC current [A]']
-z = df['Speed [rpm]']
+y = df['Speed [rpm]']
+
+z = df['DC Current [A]']
 
 data = np.array([x, y, z])
 
@@ -19,11 +20,19 @@ def func(xy, a, b, c, d, e, f):
 # Perform curve fitting 
 popt, pcov = curve_fit(func, (x, y), z) 
   
-# Print optimized parameters 
-print(popt)
+# # Print optimized parameters 
+# print(popt)
 
-# Predict the values
-z_pred = func((x, y), *popt)
+# Predicted values
+def predict(x, y):
+    z = 1.68577821 + (-7.08012537*(10**-2))*x - (1.70815244*(10**-4))*y + (1.29804366*(10**-3))*(x**2) + (1.33784126*10**-5)*(y**2) + (2.45372892*(10**-3))*x*y
+    return z
+
+zpred = []
+for i in range(len(x)):
+    zpred.append(predict(x[i], y[i]))
 
 # Calculate the error
-error = np.mean(np.abs(z - z_pred))
+error = (sum(abs(z - zpred))/len(z))
+
+print(error, "% Error")
