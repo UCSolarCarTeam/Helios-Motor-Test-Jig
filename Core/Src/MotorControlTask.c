@@ -56,7 +56,6 @@ uint8_t CheckBuffer(uint8_t* buffer, uint8_t* buffer_index) {
     * @param last_message: The last message received
     * 
     * @return A Motor_cmd struct containing the parsed data
-
 */
 uint8_t ParseMotorCommand(Motor_cmd* motor_cmd, uint8_t* buffer, uint8_t* last_message, uint8_t* adc_log_enable, Motor_cmd* last_motor_cmd, UART_HandleTypeDef* huart) {
     for(int i = 0; i < UART_BUF_LEN; i++){
@@ -205,7 +204,6 @@ uint8_t ParseMotorCommand(Motor_cmd* motor_cmd, uint8_t* buffer, uint8_t* last_m
         else { // unsupported option
             return -3;
         }
-
     } 
     
     else if (strcmp(motor, "send") == 0){ // Send Command to Motors
@@ -235,7 +233,6 @@ uint8_t ParseMotorCommand(Motor_cmd* motor_cmd, uint8_t* buffer, uint8_t* last_m
             // unsupported option
             return -3;
         }
-
     } 
     
     else if(strcmp(motor, "logadc") == 0){ // ADC Log
