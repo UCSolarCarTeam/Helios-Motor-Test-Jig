@@ -44,6 +44,7 @@ def read_serial_data():
 
 while True:
     if ser.in_waiting > 0:
+        print("----------------------")
         incoming_data = read_serial_data()
         last_message_time = time.time()
 
@@ -51,8 +52,8 @@ while True:
         if data != None:
             print(f"{data}")
     
-    if incoming_data:
-        if time.time() - last_message_time > 0.1:
-            print("Time since last message: ", time.time() - last_message_time)
+    # if incoming_data:
+    #     if time.time() - last_message_time > 0.1:
+    #         print("Time since last message: ", time.time() - last_message_time)
 
     incoming_data = []
