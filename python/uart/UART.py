@@ -1,3 +1,6 @@
+# Sends and receives data over UART using Python
+# Created by: Dominic Choi
+
 import serial
 import time
 

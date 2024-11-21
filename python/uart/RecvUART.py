@@ -1,3 +1,6 @@
+# This script reads data from a serial port and prints it to the console
+# Authored By: Dominic Choi
+
 import serial
 import time
 
