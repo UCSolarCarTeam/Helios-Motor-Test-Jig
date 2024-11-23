@@ -295,6 +295,7 @@ void SendMotorCommand(Motor_cmd* motor_cmd, Motor_cmd* last_motor_cmd) {
 
         m2_message[2] = byte_3;
     }
+    // Send CAN message here
 
 }
 

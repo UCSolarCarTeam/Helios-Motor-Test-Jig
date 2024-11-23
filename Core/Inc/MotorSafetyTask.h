@@ -15,4 +15,6 @@
 
 void sendADCValues(UART_HandleTypeDef* huart, uint16_t* dma_adc_buf, uint8_t enable);
 
+uint8_t motorSafetyTask(uint16_t* dma_adc_buf);
+
 #endif /* INC_MOTORSAFETYTASK_H_ */
