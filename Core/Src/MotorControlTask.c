@@ -296,6 +296,7 @@ void SendMotorCommand(Motor_cmd* motor_cmd, Motor_cmd* last_motor_cmd) {
         m2_message[2] = byte_3;
     }
 
+<<<<<<< HEAD
 
     // Create CAN message struct object for both m1 and m2 msg
     // Send through extendedID 0x550
@@ -318,6 +319,9 @@ void SendMotorCommand(Motor_cmd* motor_cmd, Motor_cmd* last_motor_cmd) {
        // Send CAN messages
        sendExtendedCANMessage(&m1_can_msg, &peripheral);
        sendExtendedCANMessage(&m2_can_msg, &peripheral);
+=======
+    // Send CAN message here
+>>>>>>> 606e4828c2e6b05fa4978e5ceac141383aa58931
 
 
 }

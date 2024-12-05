@@ -132,8 +132,11 @@ int main(void)
   motor_cmd = motor_cmd_init();
   last_motor_cmd = motor_cmd_init();
   
-  // Start Timer 7 for Motor Safety Task
+  // Start Timer 7 for Motor Safety Task ADC Logging
   HAL_TIM_Base_Start_IT(&htim7);
+
+  // Start Timer 6 for Motor Safety Task
+  HAL_TIM_Base_Start_IT(&htim6);
 
   /* USER CODE END 2 */
 
