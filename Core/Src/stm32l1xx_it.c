@@ -289,6 +289,7 @@ void TIM7_IRQHandler(void)
   HAL_TIM_IRQHandler(&htim7);
   /* USER CODE BEGIN TIM7_IRQn 1 */
   sendADCValues(&huart2, dma_adc_buf, adc_log_en);
+
   /* USER CODE END TIM7_IRQn 1 */
 }
 
