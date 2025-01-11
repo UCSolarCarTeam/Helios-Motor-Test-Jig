@@ -19,9 +19,19 @@
 */
 void sendADCValues(UART_HandleTypeDef* huart, uint16_t* dma_adc_buf, uint8_t enable){
 	if(enable){
-		char msg[50] = {0};
-        sprintf(msg, "9999\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\r\n", dma_adc_buf[0], dma_adc_buf[1], dma_adc_buf[2], dma_adc_buf[3], dma_adc_buf[4], dma_adc_buf[5], dma_adc_buf[6], dma_adc_buf[7]);
+        uint16_t adc_vals[8] = {0};
+		memcpy(adc_vals, dma_adc_buf, 16);
+
+		
+//		char brmsg[6] = "9999\r\n";
+//		HAL_UART_Transmit_DMA(huart, (uint8_t*)brmsg, strlen(brmsg));
+        
+        char msg[50] = {0};
+        sprintf(msg, "%d %d %d %d %d %d %d %d\r\n", adc_vals[0], adc_vals[1], adc_vals[2], adc_vals[3], adc_vals[4], adc_vals[5], adc_vals[6], adc_vals[7]);
+        
+        // HAL_UART_Transmit(huart, (uint8_t*)msg, strlen(msg), 1);
         HAL_UART_Transmit_DMA(huart, (uint8_t*)msg, strlen(msg));
+
 	} else {
 
 	}
