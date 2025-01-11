@@ -32,31 +32,25 @@ while True:
         exit(1)
 
 # Function to read incoming UART data
-def read_serial_data():
-    received_data = []
-    if ser.in_waiting > 0:  # Check if there is incoming data
-        try:
-            while ser.in_waiting != 0:
-                received_data.append(ser.readline().decode('utf-8'))
-            return received_data
-        except Exception as e:
-            print(f"Error reading from serial port: {e}")
+def read_serial_data(ser):
+    try:
+        if ser.in_waiting > 0:  # Check if data is available
+            data = ser.readline().decode('utf-8').strip()  # Read and decode a line
+            return data  # Return the data
+    except Exception as e:
+        print(f"Error reading data: {e}")
     return None
 
 # Main loop to send and receive data
-
 while True:
-    if ser.in_waiting > 0:
-        print("----------------------")
-        incoming_data = read_serial_data()
-        last_message_time = time.time()
+    # Read serial data and append it to the list if valid
+    new_data = read_serial_data(ser)
+    if new_data is not None:
+        incoming_data.append(new_data)
 
+    # Process and print all incoming data
     for data in incoming_data:
-        if data != None:
-            print(f"{data}")
-    
-    # if incoming_data:
-    #     if time.time() - last_message_time > 0.1:
-    #         print("Time since last message: ", time.time() - last_message_time)
+        print(f"{data}")
 
-    incoming_data = []
+    # Clear the list after processing
+    incoming_data.clear()
