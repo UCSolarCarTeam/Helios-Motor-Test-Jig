@@ -1,0 +1,22 @@
+{
+    "profiles": [
+        {
+            "name": "test_profile",
+            "command_sequence" : [
+                "m1 torque 100",
+                "m2 torque 200",
+                "m1 on",
+                "m2 on",
+                "print"
+            ]
+        },
+        {
+            "name": "test_profile2",
+            "command_sequence" : [
+                "command1",
+                "command3",
+                "command2"
+            ]
+        }
+    ]
+}
