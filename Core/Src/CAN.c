@@ -327,7 +327,7 @@ void sendExtendedCANMessage(CANMsg *msg, CANPeripheral *peripheral)
   */
 void receiveCANMessage(uint8_t channel, uint32_t* ID, uint8_t* DLC, uint8_t* data, CANPeripheral *peripheral)
 {
-	// Check if channel is valid, should never go in with wrong channel
+	// Check if channel is valid, should never go in with wrong channel4
 	if (channel > 1) {
 		return;
 	}

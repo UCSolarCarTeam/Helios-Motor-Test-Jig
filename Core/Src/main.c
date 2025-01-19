@@ -23,6 +23,8 @@
 /* USER CODE BEGIN Includes */
 #include <string.h>
 #include "MotorControlTask.h"
+#include "CAN.h"
+#include "CANRegisters.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -53,7 +55,11 @@ UART_HandleTypeDef huart2;
 DMA_HandleTypeDef hdma_usart1_rx;
 
 /* USER CODE BEGIN PV */
-
+CANPeripheral peripheral1 = {
+	.CS_PORT = GPIOB,
+	.CS_PIN = GPIO_PIN_2,
+	.hspi = &hspi2
+};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -86,6 +92,11 @@ Motor_cmd last_motor_cmd;
 // Status and Enables
 uint8_t adc_log_en = 0;
 int8_t parse_status = 0;
+
+//motor variablesS
+int16_t motor_rpm;
+int16_t motor_torque;
+int16_t inv_peak_cur;
 
 /* USER CODE END 0 */
 

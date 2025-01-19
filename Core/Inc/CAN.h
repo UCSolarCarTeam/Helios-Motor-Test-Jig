@@ -2,7 +2,7 @@
 
 #include "main.h"
 #include <stdint.h>
-#include "cmsis_os.h"
+//#include "cmsis_os.h"
 #include "CANRegisters.h"
 
 #ifdef __cplusplus

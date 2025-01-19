@@ -23,6 +23,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "MotorSafetyTask.h"
+
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -67,7 +69,12 @@ extern TIM_HandleTypeDef htim2;
 extern uint8_t adc_log_en;
 extern uint16_t dma_adc_buf[ADC_BUF_LEN];
 
+extern int16_t motor_rpm;
+extern int16_t motor_torque;
+extern int16_t inv_peak_cur;
+
 extern UART_HandleTypeDef huart2;
+
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -265,6 +272,7 @@ void TIM2_IRQHandler(void)
 }
 
 /**
+
   * @brief This function handles TIM6 global interrupt.
   */
 void TIM6_IRQHandler(void)
@@ -274,7 +282,8 @@ void TIM6_IRQHandler(void)
   /* USER CODE END TIM6_IRQn 0 */
   HAL_TIM_IRQHandler(&htim6);
   /* USER CODE BEGIN TIM6_IRQn 1 */
-  motorSafetyTask(dma_adc_buf);
+  //motorSafetyTask(dma_adc_buf);
+  motorSafetyTask(dma_adc_buf, &motor_rpm, &motor_torque, &inv_peak_cur);
   /* USER CODE END TIM6_IRQn 1 */
 }
 
