@@ -1,13 +1,11 @@
 {
     "profiles": [
         {
-            "name": "test_profile",
+            "name": "startup",
             "command_sequence" : [
-                "m1 torque 100",
-                "m2 torque 200",
-                "m1 on",
-                "m2 on",
-                "print"
+                "command1",
+                "command2",
+                "command3"
             ]
         },
         {
@@ -15,6 +13,7 @@
             "command_sequence" : [
                 "command1",
                 "command3",
+                "sleep 3",
                 "command2"
             ]
         }

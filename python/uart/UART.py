@@ -4,8 +4,9 @@
 import serial
 import time
 
-import Profiles as pfl
+COMMAND_DELAY = 0.1
 
+import Profiles as pfl
 p = pfl.Profiles("profiles-config/profiles.json")
 
 data = []
@@ -64,6 +65,10 @@ while True:
                 print(profile.get("name"))
             print()
 
+        elif profile_option == 'refresh':
+            p = pfl.Profiles("profiles-config/profiles.json")
+            print("Profiles refreshed.")
+
         elif profile_option == 'check':
             profile_name = payload.split()[2]
             commands = p.get_commands_by_profile_name(profile_name)
@@ -81,9 +86,18 @@ while True:
             if commands:
                 for command in commands:
                     command += '\r'
-                    ser.write(command.encode('utf-8'))
-                    print(f"Sent: {command}")
-                    time.sleep(0.5)
+    
+                    if command.startswith("sleep"):
+                        split_command = command.split()
+                        sleep_time = int(split_command[1])
+                        print(f"Sleeping for {sleep_time} seconds.")
+                        time.sleep(sleep_time)
+                    
+                    else:
+                        ser.write(command.encode('utf-8'))
+                        print(f"Sent: {command}")
+                        time.sleep(COMMAND_DELAY)
+
                     incoming_data = read_serial_data()
                     
             else:
@@ -99,7 +113,7 @@ while True:
         print()
         
         # Try to read data after sending
-        time.sleep(0.5)  # Optional delay to ensure the receiving end gets time
+        time.sleep(COMMAND_DELAY)  # Optional delay to ensure the receiving end gets time
         incoming_data = read_serial_data()
 
         if incoming_data:
