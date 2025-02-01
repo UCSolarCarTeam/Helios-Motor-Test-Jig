@@ -7,6 +7,10 @@
 
 #include "MotorControlTask.h"
 #include "MotorSafetyTask.h"
+#include "CAN.h"
+#include "CANRegisters.h"
+
+extern CANPeripheral peripheral1;
 
 Motor_cmd motor_cmd_init(void){
     Motor_cmd motor_cmd;
@@ -296,6 +300,28 @@ void SendMotorCommand(Motor_cmd* motor_cmd, Motor_cmd* last_motor_cmd) {
         m2_message[2] = byte_3;
     }
 
+
+    // Create CAN message struct object for both m1 and m2 msg
+    // Send through extendedID 0x550
+    CANMsg m1_can_msg = {
+           .ID = 0,
+           .extendedID = 0x550,
+           .DLC = 8,
+           .data = {0}
+       };
+       memcpy(m1_can_msg.data, m1_message, 8);
+
+       CANMsg m2_can_msg = {
+           .ID = 0,
+           .extendedID = 0x550,
+           .DLC = 8,
+           .data = {0}
+       };
+       memcpy(m2_can_msg.data, m2_message, 8);
+
+       // Send CAN messages
+       sendExtendedCANMessage(&m1_can_msg, &peripheral1);
+       sendExtendedCANMessage(&m2_can_msg, &peripheral1);
     // Send CAN message here
 
 
