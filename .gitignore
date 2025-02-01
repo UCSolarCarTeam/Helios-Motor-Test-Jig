@@ -48,3 +48,5 @@ STM32L152-Discovery.elf.launch
 html/
 latex/
 .settings/
+
+__pycache__/
