@@ -1,0 +1,21 @@
+{
+    "profiles": [
+        {
+            "name": "startup",
+            "command_sequence" : [
+                "command1",
+                "command2",
+                "command3"
+            ]
+        },
+        {
+            "name": "start",
+            "command_sequence" : [
+                "command1",
+                "command3",
+                "sleep 3",
+                "command2"
+            ]
+        }
+    ]
+}

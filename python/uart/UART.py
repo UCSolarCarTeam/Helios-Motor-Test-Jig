@@ -4,6 +4,11 @@
 import serial
 import time
 
+COMMAND_DELAY = 0.1
+
+import Profiles as pfl
+p = pfl.Profiles("profiles-config/profiles.json")
+
 data = []
 
 # Initialize the serial connection
@@ -47,20 +52,69 @@ def read_serial_data():
 # Main loop to send and receive data
 while True:
     payload = input("Enter data to send or 'exit' to Exit: ")
-    
+
     if payload.lower() == 'exit':
         ser.close()
         exit(0)
 
-    # Send data to the serial port
-    payload += '\r'  # Adding carriage return
-    ser.write(payload.encode('utf-8'))
-    print(f"Sent: {payload.strip()}")
-    print()
-    
-    # Try to read data after sending
-    time.sleep(1)  # Optional delay to ensure the receiving end gets time
-    incoming_data = read_serial_data()
+    elif payload.lower().split()[0] == 'profile':
+        profile_option = payload.split()[1]
+        if profile_option == 'list':
+            print("Profiles:")
+            for profile in p.get_profiles():
+                print(profile.get("name"))
+            print()
 
-    if incoming_data:
-        data.append(incoming_data)
+        elif profile_option == 'refresh':
+            p = pfl.Profiles("profiles-config/profiles.json")
+            print("Profiles refreshed.")
+
+        elif profile_option == 'check':
+            profile_name = payload.split()[2]
+            commands = p.get_commands_by_profile_name(profile_name)
+            if commands:
+                print(f"Profile '{profile_name}' command sequence:")
+                for command in commands:
+                    print(command)
+                print()
+            else:
+                print(f"Profile '{profile_name}' not found.")
+
+        elif profile_option == 'set':
+            profile_name = payload.split()[2]
+            commands = p.get_commands_by_profile_name(profile_name)
+            if commands:
+                for command in commands:
+                    command += '\r'
+    
+                    if command.startswith("sleep"):
+                        split_command = command.split()
+                        sleep_time = int(split_command[1])
+                        print(f"Sleeping for {sleep_time} seconds.")
+                        time.sleep(sleep_time)
+                    
+                    else:
+                        ser.write(command.encode('utf-8'))
+                        print(f"Sent: {command}")
+                        time.sleep(COMMAND_DELAY)
+
+                    incoming_data = read_serial_data()
+                    
+            else:
+                print(f"Profile '{profile_name}' not found.")
+        else:
+            print("Invalid profile option.")
+
+    else: 
+        # Send data to the serial port
+        payload += '\r'  # Adding carriage return
+        ser.write(payload.encode('utf-8'))
+        print(f"Sent: {payload.strip()}")
+        print()
+        
+        # Try to read data after sending
+        time.sleep(COMMAND_DELAY)  # Optional delay to ensure the receiving end gets time
+        incoming_data = read_serial_data()
+
+        if incoming_data:
+            data.append(incoming_data)

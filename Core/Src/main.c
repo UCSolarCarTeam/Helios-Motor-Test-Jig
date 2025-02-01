@@ -52,7 +52,8 @@ TIM_HandleTypeDef htim7;
 
 UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
-DMA_HandleTypeDef hdma_usart1_rx;
+DMA_HandleTypeDef hdma_usart1_tx;
+DMA_HandleTypeDef hdma_usart2_rx;
 
 /* USER CODE BEGIN PV */
 CANPeripheral peripheral1 = {
@@ -113,7 +114,7 @@ int main(void)
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+	HAL_Init();
 
   /* USER CODE BEGIN Init */
 
@@ -138,7 +139,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
   HAL_ADC_Start_DMA(&hadc, (uint32_t*)dma_adc_buf, ADC_BUF_LEN);
   HAL_TIM_Base_Start(&htim6);
-  HAL_UART_Receive_DMA(&huart1, dma_uart_buf, UART_BUF_LEN);
+  HAL_UART_Receive_DMA(&huart2, dma_uart_buf, UART_BUF_LEN);
 
   motor_cmd = motor_cmd_init();
   last_motor_cmd = motor_cmd_init();
@@ -163,16 +164,16 @@ int main(void)
     
     // Command Status 1 means that the command is ready to be parsed
     } else if(command_status == 1){
-    	parse_status = ParseMotorCommand(&motor_cmd, dma_uart_buf, last_message, &adc_log_en, &last_motor_cmd, &huart1);
+    	parse_status = ParseMotorCommand(&motor_cmd, dma_uart_buf, last_message, &adc_log_en, &last_motor_cmd, &huart2);
 
       if(parse_status != 1){
         char error_message[20] = {0};
         sprintf(error_message, "Command Error: %d\r\n", parse_status);
-        HAL_UART_Transmit(&huart1, (uint8_t*)error_message, strlen(error_message), 100);
+        HAL_UART_Transmit(&huart2, (uint8_t*)error_message, strlen(error_message), 100);
       }
 
-    	HAL_UART_DMAStop(&huart1);
-    	HAL_UART_Receive_DMA(&huart1, dma_uart_buf, UART_BUF_LEN);
+    	HAL_UART_DMAStop(&huart2);
+    	HAL_UART_Receive_DMA(&huart2, dma_uart_buf, UART_BUF_LEN);
 
     	memset(dma_uart_buf, 0, sizeof(dma_uart_buf));
 
@@ -449,8 +450,8 @@ static void MX_TIM7_Init(void)
   htim7.Instance = TIM7;
   htim7.Init.Prescaler = 319;
   htim7.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim7.Init.Period = 999;
-  htim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  htim7.Init.Period = 9999;
+  htim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_Base_Init(&htim7) != HAL_OK)
   {
     Error_Handler();
@@ -546,9 +547,12 @@ static void MX_DMA_Init(void)
   /* DMA1_Channel1_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
-  /* DMA1_Channel5_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Channel5_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Channel5_IRQn);
+  /* DMA1_Channel4_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel4_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel4_IRQn);
+  /* DMA1_Channel6_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel6_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel6_IRQn);
 
 }
 
