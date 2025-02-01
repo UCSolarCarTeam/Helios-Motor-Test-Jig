@@ -38,7 +38,8 @@ def read_serial_data(ser):
             data = ser.readline().decode('utf-8').strip()  # Read and decode a line
             return data  # Return the data
     except Exception as e:
-        print(f"Error reading data: {e}")
+        #print(f"Error reading data: {e}")
+        print()
     return None
 
 # Main loop to send and receive data

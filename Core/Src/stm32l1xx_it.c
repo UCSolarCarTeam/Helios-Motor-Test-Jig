@@ -71,6 +71,7 @@ extern uint8_t adc_log_en;
 extern uint16_t dma_adc_buf[ADC_BUF_LEN];
 
 extern UART_HandleTypeDef huart1;
+extern DMA_HandleTypeDef hdma_memtomem_dma2_channel1;
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -333,7 +334,7 @@ void TIM7_IRQHandler(void)
   /* USER CODE END TIM7_IRQn 0 */
   HAL_TIM_IRQHandler(&htim7);
   /* USER CODE BEGIN TIM7_IRQn 1 */
-  sendADCValues(&huart1, dma_adc_buf, adc_log_en);
+  sendADCValues(&huart1, &hdma_usart1_tx, dma_adc_buf, adc_log_en);
 
   /* USER CODE END TIM7_IRQn 1 */
 }

@@ -11,7 +11,7 @@
             ]
         },
         {
-            "name": "test_profile2",
+            "name": "start",
             "command_sequence" : [
                 "command1",
                 "command3",
