@@ -121,7 +121,7 @@ uint8_t ParseMotorCommand(Motor_cmd* motor_cmd, uint8_t* buffer, uint8_t* last_m
             } else {
                 motor_cmd->m1_dir = 0;
             }
-            sprintf(update_msg, "Motor 1 Speed: %d RPM -> %d RPM\r\n", last_motor_cmd->m1_val/10, motor_cmd->m1_val/10);
+            sprintf(update_msg, "Motor 1 Speed: %0.1f RPM -> %0.1f RPM\r\n", (float)last_motor_cmd->m1_val/10, (float)motor_cmd->m1_val/10);
         } 
         
         // Motor Mode
