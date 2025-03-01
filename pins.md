@@ -10,6 +10,9 @@ green of the cable: TX out of the USB port
 # ATTACH GREEN EXTRA WIRE TO BOARD TX D8
 # ATTACH WHITE EXTRA WIRE TO BOARD RX D2
 
+Virtual Link = UART
+Bridge = ADC Log
+
 ## ADC
 - ADC1_IN0  : PA0 : A0
 - ADC1_IN1  : PA1 : A1
