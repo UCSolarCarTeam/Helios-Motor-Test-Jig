@@ -92,6 +92,7 @@ while True:
                         sleep_time = int(split_command[1])
                         print(f"Sleeping for {sleep_time} seconds.")
                         time.sleep(sleep_time)
+                        print()
                     
                     else:
                         ser.write(command.encode('utf-8'))
