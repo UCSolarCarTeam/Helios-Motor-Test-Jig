@@ -77,6 +77,8 @@ void Error_Handler(void);
 #define Motor_1_Current_GPIO_Port GPIOA
 #define Motor_2_Current_Pin GPIO_PIN_1
 #define Motor_2_Current_GPIO_Port GPIOB
+#define CS_CAN_Pin GPIO_PIN_2
+#define CS_CAN_GPIO_Port GPIOB
 #define Faults_Pin GPIO_PIN_11
 #define Faults_GPIO_Port GPIOB
 #define Radio_GPIO_Pin GPIO_PIN_12
@@ -87,8 +89,6 @@ void Error_Handler(void);
 #define nRX0BF_GPIO_Port GPIOC
 #define nRX1BF_Pin GPIO_PIN_8
 #define nRX1BF_GPIO_Port GPIOC
-#define nRESET_Pin GPIO_PIN_9
-#define nRESET_GPIO_Port GPIOC
 #define TMS_Pin GPIO_PIN_13
 #define TMS_GPIO_Port GPIOA
 #define TCK_Pin GPIO_PIN_14

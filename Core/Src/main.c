@@ -81,9 +81,10 @@ static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN 0 */
 // Buffers
 uint16_t dma_adc_buf[ADC_BUF_LEN] = {0};
-uint8_t dma_uart_buf[UART_BUF_LEN] = {0};
+uint8_t dma_uart_command_buf[UART_BUF_LEN] = {0};
+uint8_t dma_uart_logging_buf[UART_BUF_LEN] = {0};
 
-uint8_t* command_end = &dma_uart_buf[0];
+uint8_t* command_end = &dma_uart_command_buf[0];
 uint8_t last_message[UART_BUF_LEN] = {0};
 
 // Motor Commands
@@ -114,7 +115,7 @@ int main(void)
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-	HAL_Init();
+  HAL_Init();
 
   /* USER CODE BEGIN Init */
 
@@ -139,7 +140,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
   HAL_ADC_Start_DMA(&hadc, (uint32_t*)dma_adc_buf, ADC_BUF_LEN);
   HAL_TIM_Base_Start(&htim6);
-  HAL_UART_Receive_DMA(&huart2, dma_uart_buf, UART_BUF_LEN);
+  HAL_UART_Receive_DMA(&huart2, dma_uart_command_buf, UART_BUF_LEN);
 
   motor_cmd = motor_cmd_init();
   last_motor_cmd = motor_cmd_init();
@@ -156,7 +157,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1){
     // Polling for carriage return \r
-    uint8_t command_status = CheckBuffer(dma_uart_buf, command_end);
+    uint8_t command_status = CheckBuffer(dma_uart_command_buf, command_end);
 
     // Command Status 0 means that the command is still being received
     if(command_status == 0){
@@ -164,7 +165,7 @@ int main(void)
     
     // Command Status 1 means that the command is ready to be parsed
     } else if(command_status == 1){
-    	parse_status = ParseMotorCommand(&motor_cmd, dma_uart_buf, last_message, &adc_log_en, &last_motor_cmd, &huart2);
+    	parse_status = ParseMotorCommand(&motor_cmd, dma_uart_command_buf, last_message, &adc_log_en, &last_motor_cmd, &huart2);
 
       if(parse_status != 1){
         char error_message[20] = {0};
@@ -173,18 +174,18 @@ int main(void)
       }
 
     	HAL_UART_DMAStop(&huart2);
-    	HAL_UART_Receive_DMA(&huart2, dma_uart_buf, UART_BUF_LEN);
+    	HAL_UART_Receive_DMA(&huart2, dma_uart_command_buf, UART_BUF_LEN);
 
-    	memset(dma_uart_buf, 0, sizeof(dma_uart_buf));
+    	memset(dma_uart_command_buf, 0, sizeof(dma_uart_command_buf));
 
-    	command_end = &dma_uart_buf[0];
+    	command_end = &dma_uart_command_buf[0];
     }
 
     uint32_t command_end_addr = (uint32_t)command_end;
-    uint32_t buf_end_addr = (uint32_t)(&dma_uart_buf[UART_BUF_LEN] - 1);
+    uint32_t buf_end_addr = (uint32_t)(&dma_uart_command_buf[UART_BUF_LEN] - 1);
 
     if(command_end_addr >= buf_end_addr){
-    	command_end = &dma_uart_buf[0];
+    	command_end = &dma_uart_command_buf[0];
     }
     /* USER CODE END WHILE */
 
@@ -450,7 +451,7 @@ static void MX_TIM7_Init(void)
   htim7.Instance = TIM7;
   htim7.Init.Prescaler = 319;
   htim7.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim7.Init.Period = 9999;
+  htim7.Init.Period = 999;
   htim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_Base_Init(&htim7) != HAL_OK)
   {
@@ -575,6 +576,9 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(CS_CAN_GPIO_Port, CS_CAN_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(Radio_GPIO_GPIO_Port, Radio_GPIO_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
@@ -582,6 +586,13 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOC, LED_2_Pin|LED_3_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pins : CS_CAN_Pin Radio_GPIO_Pin */
+  GPIO_InitStruct.Pin = CS_CAN_Pin|Radio_GPIO_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pins : Faults_Pin Gate_Driver_Placeholder_1_Pin Gate_Driver_Placeholder_2_Pin Gate_Driver_Placeholder_3_Pin
                            Gate_Driver_Placeholder_4_Pin Button_1_Pin Button_2_Pin */
@@ -591,23 +602,23 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : Radio_GPIO_Pin */
-  GPIO_InitStruct.Pin = Radio_GPIO_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(Radio_GPIO_GPIO_Port, &GPIO_InitStruct);
-
   /*Configure GPIO pins : nCAN_INT_Pin nRX0BF_Pin */
   GPIO_InitStruct.Pin = nCAN_INT_Pin|nRX0BF_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : nRX1BF_Pin nRESET_Pin Button_3_Pin */
-  GPIO_InitStruct.Pin = nRX1BF_Pin|nRESET_Pin|Button_3_Pin;
+  /*Configure GPIO pins : nRX1BF_Pin Button_3_Pin */
+  GPIO_InitStruct.Pin = nRX1BF_Pin|Button_3_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PC9 */
+  GPIO_InitStruct.Pin = GPIO_PIN_9;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.Alternate = GPIO_AF14_TIM_IC2;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pin : LED_1_Pin */

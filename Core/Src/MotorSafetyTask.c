@@ -35,30 +35,12 @@ void sendADCValues(UART_HandleTypeDef* huart, DMA_HandleTypeDef* hdma, uint16_t*
         
         memcpy(adc_vals, dma_adc_buf, 8*sizeof(uint16_t));
 
-        // char msg[80] = {0}; another solution is to use static char
-        //sprintf(msg, "9999 9999 9999 9999 9999 9999 9999 9999 8888\r\n");
-        //sprintf(msg, "9999 %d %d %d %d %d %d %d %d 8888\r\n", adc_vals[0], adc_vals[1], adc_vals[2], adc_vals[3], adc_vals[4], adc_vals[5], adc_vals[6], adc_vals[7]);
-        //HAL_UART_DMAStop(huart);
-        //HAL_UART_Transmit_DMA(huart, (uint16_t*)msg, strlen(msg)); this approach could work as well when using static char
-        //HAL_UART_Transmit(huart, (uint8_t*)msg, strlen(msg), 1000); // Blocking UART transmit (this actually works but is slow)
-        sprintf((char*)dma_uart_buf, "9999 %d %d %d %d %d %d %d %d 8888\r\n",
+		sprintf((char*)dma_uart_buf, "9999 %d %d %d %d %d %d %d %d 8888\r\n",
                 adc_vals[0], adc_vals[1], adc_vals[2], adc_vals[3], adc_vals[4], adc_vals[5], adc_vals[6], adc_vals[7]);
 
         HAL_UART_DMAStop(huart);
         HAL_UART_Transmit_DMA(huart, dma_uart_buf, strlen((char*)dma_uart_buf));
 
-
-        
-        
-
-    //     HAL_UART_Transmit_DMA(huart, (uint8_t*)"9999 ", 5);
-
-    //     for (int i = 0; i < 8; i++){
-    //        sprintf(msg, "%d: %d ", i, adc_vals[i]);
-    //        HAL_UART_Transmit_DMA(huart, (uint8_t*)msg, strlen(msg));
-    //     }
-
-    //    HAL_UART_Transmit_DMA(huart, (uint8_t*)"8888\r\n", 6);
 	}
 
 
