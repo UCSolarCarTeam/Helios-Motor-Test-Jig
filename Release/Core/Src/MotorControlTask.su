@@ -1,0 +1,5 @@
+../Core/Src/MotorControlTask.c:15:11:motor_cmd_init	0	static
+../Core/Src/MotorControlTask.c:41:9:CheckBuffer	0	static
+../Core/Src/MotorControlTask.c:272:6:SendMotorCommand	88	static
+../Core/Src/MotorControlTask.c:336:6:PrintMotorCommand	136	static
+../Core/Src/MotorControlTask.c:64:9:ParseMotorCommand	144	static

@@ -1,0 +1,5 @@
+../Core/Src/MotorSafetyTask.c:32:6:sendADCValues	136	static
+../Core/Src/MotorSafetyTask.c:65:8:predict_dc_current	184	static
+../Core/Src/MotorSafetyTask.c:136:6:receiveCANMessageHandler	32	static
+../Core/Src/MotorSafetyTask.c:154:9:motorSafetyTask	16	static
+../Core/Src/MotorSafetyTask.c:98:9:checkADCValues	256	static
