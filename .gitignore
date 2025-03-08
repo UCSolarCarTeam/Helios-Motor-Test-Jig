@@ -25,7 +25,7 @@ tempCodeRunnerFile.*
 # Executablesp
 build/
 Debug/
-*.exe.
+*.exe
 *.out
 *.app
 *.i*86
