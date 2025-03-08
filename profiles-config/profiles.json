@@ -2,6 +2,7 @@
     "profiles": [
         {
             "name": "startup",
+            "description": "This profile is used to start the application",
             "command_sequence" : [
                 "command1",
                 "command2",
@@ -9,13 +10,27 @@
             ]
         },
         {
-            "name": "start",
+            "name": "test",
+            "description": "This profile is used as a test",
             "command_sequence" : [
                 "command1",
                 "command3",
-                "sleep 3",
+                "sleep 2",
                 "command2"
             ]
+        },
+        {
+            "name": "torque",
+            "description": "This profile is used to test in torque mode",
+            "command_sequence" : [
+                "m1 on",
+                "m1 speed 100",
+                "m1 torque 68",
+
+                "m2 on",
+                "m2 regen",
+                "sleep 10"
+            ]
         }
-    ]
+    ]   
 }
