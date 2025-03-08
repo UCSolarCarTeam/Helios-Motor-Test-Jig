@@ -7,7 +7,7 @@ import time
 COMMAND_DELAY = 0.1
 
 import Profiles as pfl
-p = pfl.Profiles("profiles-config/profiles.json")
+p = pfl.Profiles("./profiles-config/profiles.json")
 
 data = []
 

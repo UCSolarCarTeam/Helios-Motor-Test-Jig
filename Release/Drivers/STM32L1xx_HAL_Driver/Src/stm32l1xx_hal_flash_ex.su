@@ -1,0 +1,13 @@
+../Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash_ex.c:404:19:HAL_FLASHEx_OBProgram	24	static
+../Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash_ex.c:486:6:HAL_FLASHEx_OBGetConfig	0	static
+../Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash_ex.c:540:19:HAL_FLASHEx_AdvOBProgram	16	static
+../Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash_ex.c:597:6:HAL_FLASHEx_AdvOBGetConfig	0	static
+../Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash_ex.c:749:19:HAL_FLASHEx_DATAEEPROM_Unlock	0	static
+../Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash_ex.c:768:19:HAL_FLASHEx_DATAEEPROM_Lock	0	static
+../Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash_ex.c:788:19:HAL_FLASHEx_DATAEEPROM_Erase	16	static
+../Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash_ex.c:846:21:HAL_FLASHEx_DATAEEPROM_Program	24	static
+../Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash_ex.c:911:6:HAL_FLASHEx_DATAEEPROM_EnableFixedTimeProgram	0	static
+../Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash_ex.c:920:6:HAL_FLASHEx_DATAEEPROM_DisableFixedTimeProgram	0	static
+../Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash_ex.c:1843:6:FLASH_PageErase	0	static
+../Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash_ex.c:185:19:HAL_FLASHEx_Erase	32	static
+../Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash_ex.c:281:19:HAL_FLASHEx_Erase_IT	24	static

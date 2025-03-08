@@ -1,0 +1,5 @@
+../Core/Src/MotorSafetyTask.c:32:6:sendADCValues	3
+../Core/Src/MotorSafetyTask.c:65:8:predict_dc_current	1
+../Core/Src/MotorSafetyTask.c:136:6:receiveCANMessageHandler	1
+../Core/Src/MotorSafetyTask.c:154:9:motorSafetyTask	7
+../Core/Src/MotorSafetyTask.c:98:9:checkADCValues	1

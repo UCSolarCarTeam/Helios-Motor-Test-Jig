@@ -71,6 +71,7 @@ extern TIM_HandleTypeDef htim2;
 /* USER CODE BEGIN EV */
 extern uint8_t adc_log_en;
 extern uint16_t dma_adc_buf[ADC_BUF_LEN];
+extern uint8_t dma_uart_logging_buf[UART_BUF_LEN];
 
 extern int16_t motor_rpm;
 extern int16_t motor_torque;
@@ -343,7 +344,7 @@ void TIM7_IRQHandler(void)
   /* USER CODE END TIM7_IRQn 0 */
   HAL_TIM_IRQHandler(&htim7);
   /* USER CODE BEGIN TIM7_IRQn 1 */
-  sendADCValues(&huart1, &hdma_usart1_tx, dma_adc_buf, adc_log_en);
+  sendADCValues(&huart1, &hdma_usart1_tx, dma_adc_buf, dma_uart_logging_buf, adc_log_en);
 
   /* USER CODE END TIM7_IRQn 1 */
 }

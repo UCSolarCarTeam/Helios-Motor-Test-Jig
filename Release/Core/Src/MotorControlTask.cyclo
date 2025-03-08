@@ -1,0 +1,5 @@
+../Core/Src/MotorControlTask.c:15:11:motor_cmd_init	1
+../Core/Src/MotorControlTask.c:41:9:CheckBuffer	1
+../Core/Src/MotorControlTask.c:272:6:SendMotorCommand	3
+../Core/Src/MotorControlTask.c:336:6:PrintMotorCommand	1
+../Core/Src/MotorControlTask.c:64:9:ParseMotorCommand	36

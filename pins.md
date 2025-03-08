@@ -8,7 +8,9 @@ white of the cable: RX into USB port
 green of the cable: TX out of the USB port
 
 # ATTACH GREEN EXTRA WIRE TO BOARD TX D8
+Switch for Omar
 # ATTACH WHITE EXTRA WIRE TO BOARD RX D2
+Switch for Omar
 
 Virtual Link = UART
 Bridge = ADC Log
