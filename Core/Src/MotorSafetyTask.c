@@ -40,9 +40,7 @@ void sendADCValues(UART_HandleTypeDef* huart, DMA_HandleTypeDef* hdma, uint16_t*
 
         HAL_UART_DMAStop(huart);
         HAL_UART_Transmit_DMA(huart, dma_uart_buf, strlen((char*)dma_uart_buf));
-
 	}
-
 
 	return;
 }
